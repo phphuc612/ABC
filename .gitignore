@@ -392,3 +392,6 @@ configs/envs.py
 # Data
 *.csv
 *.txt
+
+# Test file
+test*.ipynb
