@@ -3,19 +3,12 @@ line-length = 79
 include = '\.pyi?$'
 exclude = "/(\\.git|\\.mypy_cache|\\data)/"
 
-[tool.flake8]
-ignore = ["E203", "E266", "W503", "F403", "F401"]
-max-line-length = 79
-max-complexity = 18
-select = ["B", "C", "E", "F", "W", "T4", "B9"]
-exclude = ".git,data,.mypy_cache"
-
 [tool.isort]
 profile = "black"
 line_length = 79
 multi_line_output = 3
 include_trailing_comma = true
-known_third_party = ["attr", "torch"]
+known_third_party = ["PIL", "attr", "cv2", "numpy", "torch", "torchvision"]
 skip = [".git", "data", ".mypy_cache"]
 
 [tool.mypy]
