@@ -6,9 +6,10 @@ import cv2
 import numpy as np
 import torch
 import torch.utils.data as data
-import torchvision.transforms as transforms
 from numpy.linalg import lstsq
 from PIL import Image, ImageDraw
+from PIL.Image import Resampling
+from torchvision import transforms
 
 LABEL_MAP = {
     "background": 0,
@@ -130,7 +131,9 @@ class Dataset(data.Dataset):
         # Label Map
         parse_name = im_name.replace("_0.jpg", "_4.png")
         im_parse = Image.open(os.path.join(dataroot, "label_maps", parse_name))
-        im_parse = im_parse.resize((self.width, self.height), Image.NEAREST)
+        im_parse = im_parse.resize(
+            (self.width, self.height), Resampling.NEAREST
+        )
         parse_array = np.array(im_parse)
 
         parse_shape = (parse_array > 0).astype(np.float32)
@@ -218,10 +221,10 @@ class Dataset(data.Dataset):
         # Shape
         parse_shape = Image.fromarray((parse_shape * 255).astype(np.uint8))
         parse_shape = parse_shape.resize(
-            (self.width // 16, self.height // 16), Image.BILINEAR
+            (self.width // 16, self.height // 16), Resampling.BILINEAR
         )
         parse_shape = parse_shape.resize(
-            (self.width, self.height), Image.BILINEAR
+            (self.width, self.height), Resampling.BILINEAR
         )
         shape = self.transform2D(parse_shape)  # [-1,1]
 
@@ -268,7 +271,7 @@ class Dataset(data.Dataset):
                         "white",
                     )
             one_map = self.transform2D(one_map)
-            pose_map[i] = one_map[0]
+            pose_map[i] = one_map[0]  # type: ignore
 
         # just for visualization
         im_pose = self.transform2D(im_pose)
@@ -390,16 +393,18 @@ class Dataset(data.Dataset):
 
             if self.args.height > 512:
                 im_arms = cv2.dilate(
-                    np.float32(im_arms),
+                    np.float32(im_arms),  # type: ignore
                     np.ones((10, 10), np.uint16),
                     iterations=5,
-                )
+                )  # type: ignore
             # elif self.args.height > 256:
             #     im_arms = cv2.dilate(
             #       np.float32(im_arms), np.ones((5, 5),
             #       np.uint16), iterations=5
             # )
-            hands = np.logical_and(np.logical_not(im_arms), arms)
+            hands = np.logical_and(
+                np.logical_not(im_arms), arms
+            )  # type: ignore
             parse_mask += im_arms
             parser_mask_fixed += hands
 
@@ -460,7 +465,7 @@ class Dataset(data.Dataset):
         )
         parse_mask_total = np.logical_or(parse_mask, parser_mask_fixed)
         im_mask = im * parse_mask_total
-        parse_mask_total = parse_mask_total.numpy()
+        parse_mask_total = np.array(parse_mask_total)
         parse_mask_total = parse_array * parse_mask_total
         parse_mask_total = torch.from_numpy(parse_mask_total)
 
@@ -478,7 +483,7 @@ class Dataset(data.Dataset):
                 dataroot, "dense", im_name.replace("_0.jpg", "_5.png")
             )
         )
-        labels = labels.resize((self.width, self.height), Image.NEAREST)
+        labels = labels.resize((self.width, self.height), Resampling.NEAREST)
         labels = np.array(labels)
 
         result = {
