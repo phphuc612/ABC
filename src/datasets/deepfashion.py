@@ -61,6 +61,7 @@ class DeepFashionCL(Dataset):
                 ids: List[int] = list(map(int, line.strip().split()))
                 paired_ids.append(ids)
 
+        # Sửa lại
         train_pairs = []
         for ids in paired_ids:
             for i in range(len(ids)):
@@ -90,3 +91,11 @@ class DeepFashionCL(Dataset):
         img_tensor = self._transform(img)
 
         return img_tensor
+
+    def collate_fn(self, batch):
+        queries, keys = zip(*batch)
+
+        queries = torch.stack(queries)
+        keys = torch.stack(keys)
+
+        return queries, keys
