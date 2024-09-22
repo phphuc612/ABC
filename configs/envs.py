@@ -15,7 +15,12 @@ class _GlobalConfig:
 
     cache_dir = wd / "cache"
 
-    def __call__(self, *args: torch.Any, **kwds: torch.Any) -> torch.Any:
+    # DATA DIR **DEFAULT** CONFIG
+    data_dir = wd / "data"
+    deep_fashion_dir = data_dir / "DeepFashion2"
+
+    # GLOBAL CONFIG VALIDATION
+    def __call__(self, *args, **kwargs):
         # Data dir
         assert Path.is_dir(
             self.data_dir
